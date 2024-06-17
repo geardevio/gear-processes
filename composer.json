@@ -1,0 +1,16 @@
+{
+  "name": "geardev/processes",
+  "description": "Processes. Part of toolkit to boost your development with Laravel and geardev.io",
+  "autoload": {
+    "psr-4": {
+      "GearDev\\Processes\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "GearDev\\Processes\\GearProcessesServiceProvider"
+      ]
+    }
+  }
+}

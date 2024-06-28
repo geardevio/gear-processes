@@ -46,11 +46,9 @@ abstract class AbstractProcess
                         }
                     } catch (\Throwable $e) {
                         if (getenv('GEAR_DEV_SERVER')) {
-//                            Log::critical('CRITICAL, Process ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', ['throwable' => $e]);
                             echo json_encode(['msg'=>'CRITICAL, Process ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', 'throwable' => $e]).PHP_EOL;
                             sleep(5);
                         } else {
-//                            Log::info('Process ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), ['throwable' => $e]);
                             echo json_encode(['msg'=>'Process ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), 'throwable' => $e]).PHP_EOL;
                             ContextStorage::getSystemChannel('exitChannel')->push(1);
                         }
@@ -58,7 +56,7 @@ abstract class AbstractProcess
                 }
             })
             ->args()
-            ->runWithClonedDiContainer();
+            ->run();
     }
 
     abstract protected function run(): bool;

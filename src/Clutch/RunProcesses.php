@@ -7,13 +7,12 @@ use GearDev\Core\Attributes\Clutch;
 use GearDev\Core\Warmers\ClutchInterface;
 use GearDev\Processes\Attributes\InitProcess;
 use GearDev\Processes\Attributes\Process;
-use Illuminate\Foundation\Application;
 
 #[Clutch]
 class RunProcesses implements ClutchInterface
 {
 
-    public function clutch(Application $app): void
+    public function clutch(): void
     {
         $collector = Collector::getInstance();
         $collector->runAttributeInstructions(InitProcess::class);

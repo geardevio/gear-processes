@@ -4,7 +4,6 @@ namespace GearDev\Processes\Attributes;
 
 use GearDev\Collector\Collector\AttributeInterface;
 use GearDev\Processes\ProcessesManagement\AbstractProcess;
-use Illuminate\Foundation\Application;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
 class Process implements AttributeInterface
@@ -24,10 +23,10 @@ class Process implements AttributeInterface
         return false;
     }
 
-    public function onClass(Application $app, string $className, AttributeInterface $attribute): void
+    public function onClass(string $className, AttributeInterface $attribute): void
     {
         if (!$this->isAllowedToRun()) return;
-        $instance = $app->make($className);
+        $instance = new $className;
         if (!is_a($instance, AbstractProcess::class)) {
             throw new \Exception('Class ' . $className . ' must implement ' . AbstractProcess::class);
         }
@@ -41,13 +40,13 @@ class Process implements AttributeInterface
         unset($instance);
     }
 
-    public function onMethod(Application $app, string $className, string $methodName, AttributeInterface $attribute): void
+    public function onMethod(string $className, string $methodName, AttributeInterface $attribute): void
     {
         if (!$this->isAllowedToRun()) return;
         // TODO: Implement onMethod() method.
     }
 
-    public function onProperty(Application $app, string $className, string $propertyName, AttributeInterface $attribute): void
+    public function onProperty(string $className, string $propertyName, AttributeInterface $attribute): void
     {
         if (!$this->isAllowedToRun()) return;
         // TODO: Implement onProperty() method.

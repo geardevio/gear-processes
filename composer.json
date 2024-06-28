@@ -6,11 +6,7 @@
       "GearDev\\Processes\\": "src/"
     }
   },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "GearDev\\Processes\\GearProcessesServiceProvider"
-      ]
-    }
+  "require": {
+    "geardev/core": "^0.1"
   }
 }

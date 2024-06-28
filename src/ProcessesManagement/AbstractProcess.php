@@ -4,8 +4,6 @@ namespace GearDev\Processes\ProcessesManagement;
 
 use GearDev\Core\ContextStorage\ContextStorage;
 use GearDev\Coroutines\Co\CoFactory;
-use Illuminate\Support\Facades\Log;
-use Swow\Sync\WaitGroup;
 
 abstract class AbstractProcess
 {
@@ -23,31 +21,17 @@ abstract class AbstractProcess
 
     public function runInitProcessesInCoroutine(): void
     {
-        $group = new WaitGroup();
-        $group->add();
-        CoFactory::createCo($this->getName())
-            ->charge(function (WaitGroup $group) {
-                while (true) {
-                    try {
-                        $result = $this->run();
-                        if ($result === true) {
-                            $group->done();
-                            break;
-                        }
-                    } catch (\Throwable $e) {
-                        if (getenv('GEAR_DEV_SERVER')) {
-                            Log::critical('CRITICAL, INIT PROCESS ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', ['throwable' => $e]);
-                            sleep(5);
-                        } else {
-                            Log::info('INIT PROCESS ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), ['throwable' => $e]);
-                            ContextStorage::getSystemChannel('exitChannel')->push(1);
-                        }
-                    }
-                }
-            })
-            ->args($group)
-            ->runWithClonedDiContainer();
-        $group->wait();
+        try {
+            $result = $this->run();
+            if ($result === true) {
+                return;
+            } else {
+                throw new \Exception('Init process '.get_called_class().' did not return true');
+            }
+        } catch (\Throwable $e) {
+            echo json_encode(['msg'=>'INIT PROCESS ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), 'throwable' => $e]).PHP_EOL;
+            ContextStorage::getSystemChannel('exitChannel')->push(1);
+        }
     }
 
     public function runProcessInCoroutine(): void
@@ -62,15 +46,18 @@ abstract class AbstractProcess
                         }
                     } catch (\Throwable $e) {
                         if (getenv('GEAR_DEV_SERVER')) {
-                            Log::critical('CRITICAL, Process ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', ['throwable' => $e]);
+//                            Log::critical('CRITICAL, Process ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', ['throwable' => $e]);
+                            echo json_encode(['msg'=>'CRITICAL, Process ' . $this->getName() . ' failed with message: ' . $e->getMessage().'. Will sleep 5 sec and try to restart', 'throwable' => $e]).PHP_EOL;
                             sleep(5);
                         } else {
-                            Log::info('Process ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), ['throwable' => $e]);
+//                            Log::info('Process ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), ['throwable' => $e]);
+                            echo json_encode(['msg'=>'Process ' . $this->getName() . ' stopped with message: ' . $e->getMessage(), 'throwable' => $e]).PHP_EOL;
                             ContextStorage::getSystemChannel('exitChannel')->push(1);
                         }
                     }
                 }
             })
+            ->args()
             ->runWithClonedDiContainer();
     }
 
